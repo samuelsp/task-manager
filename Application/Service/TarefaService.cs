@@ -4,7 +4,7 @@ using TaskManager.Domain.Interfaces;
 
 namespace TaskManager.Application.Service
 {
-    public class TarefaService
+    public class TarefaService : ITarefaService
     {
         private readonly ITarefaRepository _tarefaRepository;
         public TarefaService(ITarefaRepository tarefaRepository)

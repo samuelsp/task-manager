@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Data.Sqlite;
 using TaskManager.Domain;
 using TaskManager.Domain.Interfaces;
 using TaskManager.Infra.Database.Interfaces;
@@ -13,7 +12,7 @@ namespace TaskManager.Infra.Repository
         public TarefaRepository(ISqliteConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
-        }        
+        }
 
         public async Task<IEnumerable<Tarefa>> GetAll()
         {
@@ -34,7 +33,7 @@ namespace TaskManager.Infra.Repository
             var query = @"INSERT INTO Tarefas (Titulo, Descricao, Status, DataCriacao, DataAlteracao)
                         VALUES (@Titulo, @Descricao, @Status, @DataCriacao, @DataAlteracao);
                         SELECT last_insert_rowid();";
-            var id = await conn.ExecuteScalarAsync<long>(query, entity);            
+            var id = await conn.ExecuteScalarAsync<long>(query, entity);
             entity.Id = (int)id;
             return entity;
         }

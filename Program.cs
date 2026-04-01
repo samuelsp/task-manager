@@ -22,7 +22,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API para gestão de tarefas"
     });
 
-    // include XML comments if generated
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
@@ -31,15 +30,28 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-// Repository + Service
+// Database factory (singleton) and repository/service (scoped)
 builder.Services.AddSingleton<ISqliteConnectionFactory, SqliteConnectionFactory>();
-builder.Services.AddSingleton<ITarefaRepository, TarefaRepository>();
-builder.Services.AddSingleton<TarefaService>();
+builder.Services.AddScoped<ITarefaRepository, TarefaRepository>();
+builder.Services.AddScoped<ITarefaService, TarefaService>();
 
 var app = builder.Build();
 
-var connectionFactory = app.Services.GetRequiredService<ISqliteConnectionFactory>();
-connectionFactory.EnsureDatabase();
+// Garantir esquema antes de aceitar requisições — resolver via scope
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetService<ILogger<Program>>();
+    try
+    {
+        var connectionFactory = scope.ServiceProvider.GetRequiredService<ISqliteConnectionFactory>();
+        connectionFactory.EnsureDatabase();
+    }
+    catch (Exception ex)
+    {
+        logger?.LogCritical(ex, "Falha ao garantir o esquema do banco de dados.");
+        throw;
+    }
+}
 
 // Enable Swagger UI (em desenvolvimento)
 if (app.Environment.IsDevelopment())
@@ -48,7 +60,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "TaskManager API v1");
-        c.RoutePrefix = "swagger"; // acesso em /swagger
+        c.RoutePrefix = "swagger";
     });
 }
 

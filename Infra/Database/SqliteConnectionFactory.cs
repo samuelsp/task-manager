@@ -10,10 +10,7 @@ namespace TaskManager.Infra.Database
         public SqliteConnectionFactory(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("Sqlite") ?? "Data Source=tasks.db";
-        }
-
-        public string GetConnectionString => _connectionString;
-
+        }        
         public async Task<SqliteConnection> CreateOpenConnectionAsync()
         {
             var conn = new SqliteConnection(_connectionString);

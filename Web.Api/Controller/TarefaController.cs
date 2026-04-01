@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskManager.Application.Service;
 using TaskManager.Domain;
+using TaskManager.Domain.Interfaces;
 
 namespace TaskManager.Web.Api.Controllers
 {
@@ -8,9 +8,9 @@ namespace TaskManager.Web.Api.Controllers
     [Route("api/tasks")]
     public class TarefaController : Controller
     {
-        private readonly TarefaService _tarefaService;
+        private readonly ITarefaService _tarefaService;
 
-        public TarefaController(TarefaService tarefaService)
+        public TarefaController(ITarefaService tarefaService)
         {
             _tarefaService = tarefaService;
         }
