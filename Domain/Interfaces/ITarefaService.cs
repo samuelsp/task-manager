@@ -5,5 +5,6 @@
         Task<IEnumerable<Tarefa>> GetAll();
         Task<Tarefa?> GetById(int id);
         Task<Tarefa> Create(TarefaDto tarefa);
+        Task<bool> Delete(int id);
     }
 }

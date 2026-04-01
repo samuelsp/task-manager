@@ -40,5 +40,14 @@ namespace TaskManager.Web.Api.Controllers
             var created = await _tarefaService.Create(tarefa);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            if (id <= 0) return BadRequest();
+            var success = await _tarefaService.Delete(id);
+            if(!success) return NotFound();
+            return NoContent();
+        }
     }
 }

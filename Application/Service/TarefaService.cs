@@ -25,5 +25,6 @@ namespace TaskManager.Application.Service
             };
             return await _tarefaRepository.Create(entity);
         }
+        public async Task<bool> Delete(int id) => await _tarefaRepository.Delete(id);
     }
 }
