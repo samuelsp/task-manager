@@ -2,8 +2,9 @@ using Microsoft.OpenApi;
 using System.Reflection;
 using TaskManager.Application.Service;
 using TaskManager.Domain.Interfaces;
+using TaskManager.Infra.Database;
+using TaskManager.Infra.Database.Interfaces;
 using TaskManager.Infra.Repository;
-using Microsoft.Data.Sqlite;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,10 +32,14 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Repository + Service
+builder.Services.AddSingleton<ISqliteConnectionFactory, SqliteConnectionFactory>();
 builder.Services.AddSingleton<ITarefaRepository, TarefaRepository>();
 builder.Services.AddSingleton<TarefaService>();
 
 var app = builder.Build();
+
+var connectionFactory = app.Services.GetRequiredService<ISqliteConnectionFactory>();
+connectionFactory.EnsureDatabase();
 
 // Enable Swagger UI (em desenvolvimento)
 if (app.Environment.IsDevelopment())
@@ -51,24 +56,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-var connectionString = app.Configuration.GetConnectionString("Sqlite") ?? "Data Source=tasks.db";
-EnsureDatabase(connectionString);
-
 app.Run();
 
-static void EnsureDatabase(string connectionString)
-{
-    using var conn = new SqliteConnection(connectionString);
-    conn.Open();
-    using var cmd = conn.CreateCommand();
-    cmd.CommandText = @"
-    CREATE TABLE IF NOT EXISTS Tarefas (
-        Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        Titulo TEXT NOT NULL,
-        Descricao TEXT,
-        Status INTEGER NOT NULL,
-        DataCriacao TEXT,
-        DataAlteracao TEXT
-    );";
-    cmd.ExecuteNonQuery();
-}
+
